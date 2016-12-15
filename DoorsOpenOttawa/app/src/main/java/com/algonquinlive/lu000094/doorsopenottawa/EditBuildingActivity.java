@@ -20,7 +20,7 @@ import static com.algonquinlive.lu000094.doorsopenottawa.model.mStringProvider.s
 import static com.algonquinlive.lu000094.doorsopenottawa.model.mStringProvider.string_bulding_Id;
 import static com.algonquinlive.lu000094.doorsopenottawa.model.mStringProvider.string_bulding_Name;
 /**
- * Created by shiva on 2016-12-12.
+ * Created by lu000094 on 2016-12-14.
  */
 
 public class EditBuildingActivity extends FragmentActivity {
