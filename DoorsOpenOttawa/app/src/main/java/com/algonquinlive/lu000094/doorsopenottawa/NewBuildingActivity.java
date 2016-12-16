@@ -105,6 +105,11 @@ public class NewBuildingActivity extends FragmentActivity {
                 // app-defined int constant. The callback method gets the
                 // result of the request.
             }
+        }else{
+            Intent intent = new Intent();
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);//
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_IMAGE);
         }
     }
     @Override
@@ -162,7 +167,7 @@ public class NewBuildingActivity extends FragmentActivity {
         myRequest.setParam("address", aBuilding.getAddress());
         myRequest.setParam("description", aBuilding.getDescription());
 
-        if (aBuilding.getImage().length()>0) {
+        if (aBuilding.getImage() != null) {
             myRequest.setParam("image", "images/" + aBuilding.getImage());
         }else{
             myRequest.setParam("image", "images/image.jpg");
@@ -197,7 +202,7 @@ public class NewBuildingActivity extends FragmentActivity {
                 Toast.makeText(NewBuildingActivity.this, "Building added succsessfully", Toast.LENGTH_LONG).show();
                 try {
                     JSONObject jsonResponse = new JSONObject(result);
-                    aBuilding.setBuildingId(jsonResponse.getInt("buildingId "));
+                    aBuilding.setBuildingId(jsonResponse.getInt("buildingId"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -243,6 +248,7 @@ public class NewBuildingActivity extends FragmentActivity {
                         try {
                             Uri mImageUri = data.getData();
                             imageUrl = mImageUri.getPath().toString();
+                            aBuilding.setImage(imageUrl);
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), data.getData());
                             //mImage.setImageBitmap(bitmap);
                             photo = FileUtils.getFile(this,mImageUri);
@@ -254,6 +260,12 @@ public class NewBuildingActivity extends FragmentActivity {
                                     myRequest.setMethod(eHttpMethod.POST);
                                     myRequest.setUri(mUriProvider.REST_URI + "/" + Integer.toString(aBuilding.getBuildingId()) + "/image");
                                     myRequest.setParam("id", Integer.toString(aBuilding.getBuildingId()));
+
+                                    if (aBuilding.getImage() != null) {
+                                        myRequest.setParam("image", "images/" + aBuilding.getImage());
+                                    }else{
+                                        myRequest.setParam("image", "images/image.jpg");
+                                    }
                                     myRequest.setImage("imageFile", photo);
 
                                     MyTask2 uploadTask = new MyTask2();
