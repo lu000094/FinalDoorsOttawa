@@ -20,7 +20,7 @@ import static com.algonquinlive.lu000094.doorsopenottawa.model.mStringProvider.s
 import static com.algonquinlive.lu000094.doorsopenottawa.model.mStringProvider.string_bulding_Id;
 import static com.algonquinlive.lu000094.doorsopenottawa.model.mStringProvider.string_bulding_Name;
 /**
- * Created by lu000094 on 2016-12-14.
+ * Created by shiva on 2016-12-12.
  */
 
 public class EditBuildingActivity extends FragmentActivity {
@@ -78,7 +78,7 @@ public class EditBuildingActivity extends FragmentActivity {
         btnDelete.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
-                deleteBuilding(mUriProvider.REST_URI);
+                deleteBuilding(mUriProvider.REST_URI_EDIT);
             }
         });
 
@@ -88,7 +88,7 @@ public class EditBuildingActivity extends FragmentActivity {
         mRequest myRequest = new mRequest();
         myRequest.setMethod( eHttpMethod.DELETE );
         // DELETE the planet with Id 8
-        myRequest.setUri( uri + "/" + Integer.toString(aBuilding.getBuildingId()));
+        myRequest.setUri( uri + Integer.toString(aBuilding.getBuildingId()));
         MyTask2 deleteTask = new MyTask2();
         deleteTask.execute( myRequest );
     }
@@ -126,7 +126,7 @@ public class EditBuildingActivity extends FragmentActivity {
         @Override
         protected String doInBackground(mRequest... params) {
 
-            String content = HttpManager.getDataWithParams(params[0]);
+            String content = HttpManager.postDataWithParams(params[0]);
 
             return content;
         }
@@ -154,7 +154,7 @@ public class EditBuildingActivity extends FragmentActivity {
         @Override
         protected String doInBackground(mRequest... params) {
 
-            String content = HttpManager.getDataWithParams(params[0]);
+            String content = HttpManager.postDataWithParams(params[0]);
 
             return content;
         }

@@ -2,14 +2,10 @@ package com.algonquinlive.lu000094.doorsopenottawa.model;
 
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 public class Building implements Serializable{
     private int buildingId;
@@ -20,7 +16,18 @@ public class Building implements Serializable{
     transient private Bitmap bitmap;
     private List<String> openHours;
 
+    public Integer getIsFavarite() {
+        return isFavarite;
+    }
+
+    public void setIsFavarite(Integer isFavarite) {
+        this.isFavarite = isFavarite;
+    }
+
+    private  Integer isFavarite;
+
     public Building(){
+        buildingId = 0;
         openHours = new ArrayList<>();
     }
 

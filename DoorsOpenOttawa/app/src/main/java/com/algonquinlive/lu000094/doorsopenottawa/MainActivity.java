@@ -2,9 +2,11 @@ package com.algonquinlive.lu000094.doorsopenottawa;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.algonquinlive.lu000094.doorsopenottawa.model.Building;
@@ -91,9 +94,58 @@ public class MainActivity extends ListActivity implements AdapterView.OnItemLong
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                updateDisplay();
+                return false;
+            }
+        });
+        searchView.setOnQueryTextListener(
+                new SearchView.OnQueryTextListener(){
+                    @Override
+                    public boolean onQueryTextSubmit(String s) {
+                        Log.d("Searching...", "");
+                        if (s.length()>0)
+                        {
+                            updateDisplay(getFilteredBuildings(s));
+                        }else{
+                            updateDisplay();
+                        }
+
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText){
+                        return  false;
+                    }
+
+                });
         return true;
     }
     //
+
+    private List getFilteredBuildings(String name){
+        List res = new ArrayList();
+        for (Object obj : buildingList)
+        {
+            Building b = (Building) obj;
+            if (b.getName().contains(name)) {
+                res.add(b);
+            }
+        }
+
+        return res;
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -150,6 +202,30 @@ public class MainActivity extends ListActivity implements AdapterView.OnItemLong
     }
 
 
+    protected void updateDisplay() {
+        //Check favorite building
+        for(int i = 0;i<buildingList.size();i++) {
+            Building b = (Building)buildingList.get(i);
+
+            SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+            int defaultValue = 0;
+            int isFavorite = sharedPref.getInt(Integer.toString(b.getBuildingId()), defaultValue);
+            if (isFavorite!=0) {
+                b.setIsFavarite(1);
+                buildingList.set(i,b);
+            }
+        }
+
+        //Use BuildingAdapter to display data
+        BuildingAdapter adapter = new BuildingAdapter(this, R.layout.item_building, buildingList);
+        setListAdapter(adapter);
+    }
+    protected void updateDisplay(List list) {
+        //Use BuildingAdapter to display data
+        BuildingAdapter adapter = new BuildingAdapter(this, R.layout.item_building, list);
+        setListAdapter(adapter);
+    }
+
     private void requestBuildingData(String uri) {
         MyTask2 task = new MyTask2();
 
@@ -158,12 +234,6 @@ public class MainActivity extends ListActivity implements AdapterView.OnItemLong
         myRequest.setMethod(eHttpMethod.GET);
 
         task.execute(myRequest);
-    }
-
-    protected void updateDisplay() {
-        //Use BuildingAdapter to display data
-        BuildingAdapter adapter = new BuildingAdapter(this, R.layout.item_building, buildingList);
-        setListAdapter(adapter);
     }
 
     protected boolean isOnline() {
@@ -182,6 +252,22 @@ public class MainActivity extends ListActivity implements AdapterView.OnItemLong
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra(MainActivity.BUILDING_EXTRA, (Building) buildingList.get(position));
         startActivity(intent);
+    }
+
+    public void doSelection(Building building) {
+        //Save local
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        if (building.getIsFavarite() == 0) {
+            building.setIsFavarite(1);
+        } else {
+            building.setIsFavarite(0);
+        }
+        editor.putInt(Integer.toString(building.getBuildingId()), building.getIsFavarite());
+        editor.commit();
+
+        updateDisplay();
     }
 
     private class MyTask extends AsyncTask<String, String, String> {
@@ -251,10 +337,10 @@ public class MainActivity extends ListActivity implements AdapterView.OnItemLong
 
             Log.d("DOOR-OPEN-OTTAWA", "result=" + result);
             buildingList = BuildingJSONParser.parseFeed(result);
-//            for (int i=0;i<140;i++)
-//            {
-//                buildingList.remove(0);
-//            }
+            for (int i=0;i<140;i++)
+            {
+                buildingList.remove(0);
+            }
             updateDisplay();
         }
     }

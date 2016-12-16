@@ -1,4 +1,5 @@
 package com.algonquinlive.lu000094.doorsopenottawa.model;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -9,10 +10,17 @@ public class mRequest {
     private String uri;
     private eHttpMethod method = eHttpMethod.GET;
     private Map<String, String> params = new HashMap<>();
+    private Map<String, File> imageParams = new HashMap<>();
 
     //Getters/Setters
     public String getUri() {
         return uri;
+    }
+    public File getImage() {
+        return imageParams.get("imageFile");
+    }
+    public void setImage(String key, File image) {
+        imageParams.put(key,image);
     }
     public void setUri(String uri) {
         this.uri = uri;

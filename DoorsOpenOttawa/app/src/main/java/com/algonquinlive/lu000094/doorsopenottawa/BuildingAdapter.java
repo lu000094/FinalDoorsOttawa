@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -42,6 +43,8 @@ public class BuildingAdapter extends ArrayAdapter<Building> {
     // TODO: cache the binary image for each planet
     private LruCache<Integer, Bitmap> imageCache;
 
+    //List<Building>
+
     public BuildingAdapter(Context context, int resource, List<Building> objects) {
         super(context, resource, objects);
         this.context = context;
@@ -56,49 +59,80 @@ public class BuildingAdapter extends ArrayAdapter<Building> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        LayoutInflater inflater =
-                (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.item_building, parent, false);
+        final Building building = buildingList.get(position);
+        ViewHolder holderView = null;
 
-        //Display Building name in the TextView widget
-        Building building = buildingList.get(position);
-        TextView tv = (TextView) view.findViewById(R.id.textView1);
-        tv.setText(building.getName());
-        TextView tv1 = (TextView) view.findViewById(R.id.textView2);
-        tv1.setText(building.getAddress());
+        if (convertView==null)
+        {
+            LayoutInflater inflater =
+                    (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.item_building, parent, false);
+            holderView = new ViewHolder();
+            holderView.tv = (TextView) convertView.findViewById(R.id.textView1);
+            holderView.tv1 = (TextView) convertView.findViewById(R.id.textView2);
+            holderView.image = (ImageView) convertView.findViewById(R.id.imageView1);
+            holderView.imgButton = (ImageButton)convertView.findViewById(R.id.btnFav);
+            holderView.imgButton.setFocusable(false);
+
+            convertView.setTag(holderView);
+        }else {
+            holderView = (ViewHolder) convertView.getTag();
+        }
+        holderView.tv.setText(building.getName());
+        holderView.tv1.setText(building.getAddress());
 
         // TODO: Display planet photo in ImageView widget
         Bitmap bitmap = imageCache.get(building.getBuildingId());
         if (bitmap != null) {
-            Log.i( "PLANETS", building.getName() + "\tbitmap in cache");
-            ImageView image = (ImageView) view.findViewById(R.id.imageView1);
-            image.setImageBitmap(building.getBitmap());
-        }
-        else {
-            Log.i( "PLANETS", building.getName() + "\tfetching bitmap using AsyncTask");
+            Log.i("PLANETS", building.getName() + "\tbitmap in cache");
+            holderView.image.setImageBitmap(building.getBitmap());
+        } else {
+            Log.i("PLANETS", building.getName() + "\tfetching bitmap using AsyncTask");
             BuildingAndView container = new BuildingAndView();
             container.building = building;
-            container.view = view;
+            container.view = holderView;
 
             ImageLoader loader = new ImageLoader();
             loader.execute(container);
         }
 
-        return view;
+        if (building.getIsFavarite()==0)
+        {
+            holderView.imgButton.setImageResource(R.drawable.unlike);
+            holderView.imgButton.setBackgroundResource(R.drawable.unlike);
+        }else{
+            holderView.imgButton.setImageResource(R.drawable.like);
+            holderView.imgButton.setBackgroundResource(R.drawable.like);
+        }
+
+        holderView.imgButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity mainActivity = (MainActivity) context;
+                mainActivity.doSelection(building);
+            }
+        });
+
+        return convertView;
     }
 
     // container for AsyncTask params
     private class BuildingAndView {
         public Building building;
-        public View view;
+        public ViewHolder view;
         public Bitmap bitmap;
+    }
+    static class ViewHolder {
+        TextView tv;
+        TextView tv1;
+        ImageView image;
+        ImageButton imgButton;
     }
 
     private class ImageLoader extends AsyncTask<BuildingAndView, Void, BuildingAndView> {
 
         @Override
         protected BuildingAndView doInBackground(BuildingAndView... params) {
-
             BuildingAndView container = params[0];
             Building building = container.building;
 
@@ -122,7 +156,7 @@ public class BuildingAdapter extends ArrayAdapter<Building> {
         protected void onPostExecute(BuildingAndView result) {
             ImageView image = null;
             try {
-                image = (ImageView) result.view.findViewById(R.id.imageView1);
+                image = (ImageView) result.view.image;
                 if (result.bitmap != null) {
                     image.setImageBitmap(result.bitmap);
 //            result.building.setBitmap(result.bitmap);

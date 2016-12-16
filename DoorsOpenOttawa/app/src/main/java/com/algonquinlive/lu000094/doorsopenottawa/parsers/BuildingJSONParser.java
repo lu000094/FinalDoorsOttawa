@@ -23,7 +23,6 @@ public class BuildingJSONParser {
 
                 JSONObject obj = buildingArray.getJSONObject(i);
                 Building building = new Building();
-
                 building.setBuildingId(obj.getInt("buildingId"));
                 building.setName(obj.getString("name"));
                 //building.setAddress(obj.getString("address")+",Ottawa, Ontario");
@@ -40,6 +39,7 @@ public class BuildingJSONParser {
                         e.printStackTrace();
                     }
                 }
+                building.setIsFavarite(0);
                 buildingList.add(building);
             }
 
