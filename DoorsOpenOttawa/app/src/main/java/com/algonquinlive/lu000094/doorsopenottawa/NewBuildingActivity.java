@@ -161,7 +161,12 @@ public class NewBuildingActivity extends FragmentActivity {
         myRequest.setParam("name", aBuilding.getName());
         myRequest.setParam("address", aBuilding.getAddress());
         myRequest.setParam("description", aBuilding.getDescription());
-        myRequest.setParam("image", aBuilding.getImage());
+
+        if (aBuilding.getImage().length()>0) {
+            myRequest.setParam("image", "images/" + aBuilding.getImage());
+        }else{
+            myRequest.setParam("image", "images/image.jpg");
+        }
 
         MyTask postTask = new MyTask();
         postTask.execute(myRequest);

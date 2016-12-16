@@ -36,8 +36,6 @@ import java.text.DecimalFormat;
 import java.util.Comparator;
 
 /**
- * @author Peli
- * @author paulburke (ipaulpro)
  * @version 2013-12-11
  */
 public class FileUtils {

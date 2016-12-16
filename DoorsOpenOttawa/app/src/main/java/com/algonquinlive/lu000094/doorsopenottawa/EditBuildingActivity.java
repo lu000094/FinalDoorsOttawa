@@ -111,7 +111,7 @@ public class EditBuildingActivity extends FragmentActivity {
         myRequest.setParam("address", aBuilding.getAddress());
         myRequest.setParam("description", aBuilding.getDescription());
         myRequest.setParam("name", aBuilding.getName());
-        myRequest.setParam("image", aBuilding.getImage());
+        myRequest.setParam("image", "images/"+aBuilding.getImage());
 
         MyTask editTast = new MyTask();
         editTast.execute(myRequest);
